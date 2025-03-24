@@ -52,7 +52,7 @@ async function login(req, res) { // async function
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 24*60 * 60 * 1000, // 1 hour
     });
     // console.log('Login successful.');
     // returing the 200 status code with the message if login is successful and the code tells that the request is successful
