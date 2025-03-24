@@ -64,4 +64,4 @@ async function login(req, res) { // async function
   }
 }
 
-export default login;
+export default login; // exporting the login function

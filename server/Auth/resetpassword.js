@@ -5,7 +5,7 @@ const resetpassword = async (req, res) => {
     //taking incomming request from client as req.body
     const { email, newPassword } = req.body; //here destructuring the object
 
-    console.log('Incoming request body:', req.body);
+    // console.log('Incoming request body:', req.body);
 
     if (!email || !newPassword) {//checking the incomming values
         // console.log('Missing email or newPassword');

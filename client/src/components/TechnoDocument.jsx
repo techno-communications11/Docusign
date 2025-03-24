@@ -1,12 +1,9 @@
-import React from 'react'
+// TechnoDocument.js
+import React from 'react';
+import DisciplinaryForm from './DisciplinaryForm';
 
-function TechnoDocument() {
-  return (
-    <div>
-      TechnoDocument
-      TechnoDocument
-    </div>
-  )
-}
+const TechnoDocument = () => (
+  <DisciplinaryForm letterheadImgSrc="/Technoletterhead.jpg" companyName="Techno Communications" />
+);
 
-export default TechnoDocument
+export default TechnoDocument;

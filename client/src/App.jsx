@@ -9,6 +9,7 @@ import TexasDocument from "./components/TexasDocument.jsx";
 import TechnoDocument from "./components/TechnoDocument.jsx";
 import { useMyContext } from "./components/Auth/MyContext";
 import CustomNavbar from "./components/Auth/CustomNavbar.jsx";
+import Activewireles from "./components/Activewireles.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -39,6 +40,7 @@ const AppContent = () => {
            <Route path="/home" element={<PrivateRoute element={<Home />} />} />
            <Route path="/technodocu" element={<PrivateRoute element={<TechnoDocument />} />} />
            <Route path="/texasdocu" element={<PrivateRoute element={<TexasDocument />} />} />
+           <Route path="/activewireless" element={<PrivateRoute element={<Activewireles />} />} />
             
             <Route path="/register" element={<PrivateRoute element={<Register />} />} />
             <Route
