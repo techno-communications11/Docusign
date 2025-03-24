@@ -144,7 +144,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
       drawRowLine(currentY);
 
       ctx.font = '14px Cambria';
-      const maxViolationWidth = Math.max(...VIOLATIONS.map((v) => ctx.measureText(v).width)) + 30;
+      const maxViolationWidth = Math.max(...VIOLATIONS.map((v) => ctx.measureText(v).width))-22;
       const companyStatementWidth = tableWidth - maxViolationWidth;
 
       for (let i = 0; i < VIOLATIONS.length; i++) {
@@ -252,7 +252,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
 
       ctx.font = 'bold 14px Cambria';
       ctx.textAlign = 'center';
-      ctx.fillText('EMPLOYEE STATEMENT', tableX + tableWidth / 2, contentY + 15);
+      ctx.fillText('EMPLOYEE STATEMENT', tableX + tableWidth / 2, contentY + 18);
       contentY += rowHeights.employee[0];
 
       ctx.font = '12px Cambria';
@@ -268,7 +268,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
 
       ctx.font = 'bold 14px Cambria';
       ctx.textAlign = 'center';
-      ctx.fillText('SIGNATURE', tableX + tableWidth / 2, contentY + 15);
+      ctx.fillText('SIGNATURE', tableX + tableWidth / 2, contentY + 17);
       contentY += rowHeights.signature[0];
 
       ctx.font = '14px Cambria';
