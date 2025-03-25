@@ -36,13 +36,16 @@ const AppContent = () => {
         />
        
         {authState.isAuthenticated && authState.role === "Admin" && (
+          <Route path="/register" element={<PrivateRoute element={<Register />} />} />
+        )}
+        {authState.isAuthenticated && (
           <>
            <Route path="/home" element={<PrivateRoute element={<Home />} />} />
            <Route path="/technodocu" element={<PrivateRoute element={<TechnoDocument />} />} />
            <Route path="/texasdocu" element={<PrivateRoute element={<TexasDocument />} />} />
            <Route path="/activewireless" element={<PrivateRoute element={<Activewireles />} />} />
             
-            <Route path="/register" element={<PrivateRoute element={<Register />} />} />
+            
             <Route
               path="/resetpassword"
               element={<PrivateRoute element={<UpdatePassword />} />}

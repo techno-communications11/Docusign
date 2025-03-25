@@ -25,6 +25,7 @@ const CustomNavbar = () => {
   const homeRoute =
     {
       Admin: "/home",
+      User: "/home",
      
     }[authState.role] || "/"; // Fallback to /userdashboard if role not matched
 
@@ -43,7 +44,6 @@ const CustomNavbar = () => {
         <Navbar.Collapse id="navbarNav">
           <Nav className="ms-auto d-flex align-items-center">
             {authState.role === "Admin" && (
-              <>
                 <Nav.Link
                   as={Link}
                   to="/register"
@@ -52,6 +52,7 @@ const CustomNavbar = () => {
                 >
                   Register
                 </Nav.Link>
+              )}
                 <Nav.Link
                   as={Link}
                   to="/resetpassword"
@@ -60,8 +61,8 @@ const CustomNavbar = () => {
                 >
                   Reset Password
                 </Nav.Link>
-              </>
-            )}
+              
+            
             <Button
               variant="outline-danger"
               className="jira-logout-btn ms-2"

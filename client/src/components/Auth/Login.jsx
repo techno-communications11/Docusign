@@ -52,7 +52,9 @@ const Login = () => {
         case "Admin":
           navigate("/home", { replace: true });
           break;
-        
+        case "User":
+          navigate("/home", { replace: true });
+          break;
         default:
           navigate("/", { replace: true });
           break;

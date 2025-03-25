@@ -1,6 +1,6 @@
 // DisciplinaryForm.js
 import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion'; 
+import { motion } from 'framer-motion';
 import { Form } from 'react-bootstrap';
 import './Styles/DisciplinaryForm.css'; // Renamed CSS file for consistency
 
@@ -49,6 +49,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
     violation: [],
     companyStatement: '',
     disagree: '',
+    otherViolationText: '', // Added for "Others (If Any):" input
   });
 
   const printCanvasRef = useRef(null);
@@ -144,7 +145,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
       drawRowLine(currentY);
 
       ctx.font = '14px Cambria';
-      const maxViolationWidth = Math.max(...VIOLATIONS.map((v) => ctx.measureText(v).width))-22;
+      const maxViolationWidth = Math.max(...VIOLATIONS.map((v) => ctx.measureText(v).width)) - 22;
       const companyStatementWidth = tableWidth - maxViolationWidth;
 
       for (let i = 0; i < VIOLATIONS.length; i++) {
@@ -246,7 +247,11 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
       wrapText(formData.companyStatement || '', tableX + 10, contentY + 15, companyStatementWidth - 20, 15);
       VIOLATIONS.forEach((violation) => {
         const isChecked = formData.violation.includes(violation) ? '✔' : '';
-        wrapText(`${isChecked} ${violation}`, tableX + companyStatementWidth + 10, contentY + 15, maxViolationWidth - 20, 15);
+        let displayText = `${isChecked} ${violation}`;
+        if (violation === 'Others (If Any):' && formData.violation.includes(violation) && formData.otherViolationText) {
+          displayText += ` ${formData.otherViolationText}`;
+        }
+        wrapText(displayText, tableX + companyStatementWidth + 10, contentY + 15, maxViolationWidth - 20, 15);
         contentY += rowHeights.violation;
       });
 
@@ -313,6 +318,8 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
     visible: { opacity: 1, transition: { duration: 0.6 } },
   };
 
+  const isOtherViolationSelected = formData.violation.includes('Others (If Any):');
+
   return (
     <motion.div
       className="print-container card mt-4"
@@ -329,7 +336,14 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
         <div className="row mb-2">
           <Form.Group className="col-md-6">
             <Form.Label>EMPLOYEE NAME:</Form.Label>
-            <Form.Control type="text" name="employeeName" value={formData.employeeName} onChange={handleChange} placeholder="Enter employee name" style={FORM_STYLES.input} />
+            <Form.Control
+              type="text"
+              name="employeeName"
+              value={formData.employeeName}
+              onChange={handleChange}
+              placeholder="Enter employee name"
+              style={FORM_STYLES.input}
+            />
           </Form.Group>
           <Form.Group className="col-md-6">
             <Form.Label>DATE:</Form.Label>
@@ -340,11 +354,25 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
         <div className="row mb-2">
           <Form.Group className="col-md-6">
             <Form.Label>SUPERVISOR NAME:</Form.Label>
-            <Form.Control type="text" name="supervisorName" value={formData.supervisorName} onChange={handleChange} placeholder="Enter supervisor name" style={FORM_STYLES.input} />
+            <Form.Control
+              type="text"
+              name="supervisorName"
+              value={formData.supervisorName}
+              onChange={handleChange}
+              placeholder="Enter supervisor name"
+              style={FORM_STYLES.input}
+            />
           </Form.Group>
           <Form.Group className="col-md-6">
             <Form.Label>LOCATION:</Form.Label>
-            <Form.Control type="text" name="location" value={formData.location} onChange={handleChange} placeholder="Enter location" style={FORM_STYLES.input} />
+            <Form.Control
+              type="text"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="Enter location"
+              style={FORM_STYLES.input}
+            />
           </Form.Group>
         </div>
 
@@ -371,29 +399,54 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
           <h5 style={{ fontSize: '1rem' }}>Nature of Violation</h5>
           <div className="row" style={{ maxHeight: '60mm', overflowY: 'auto' }}>
             {VIOLATIONS.map((violation) => (
-              <Form.Check
-                key={violation}
-                className="col-md-6 mb-1"
-                type="checkbox"
-                label={violation}
-                name="violation"
-                value={violation}
-                checked={formData.violation.includes(violation)}
-                onChange={handleChange}
-                style={{ fontSize: '0.8rem' }}
-              />
+              <div key={violation} className="col-md-6 mb-1">
+                <Form.Check
+                  type="checkbox"
+                  label={violation}
+                  name="violation"
+                  value={violation}
+                  checked={formData.violation.includes(violation)}
+                  onChange={handleChange}
+                  style={{ fontSize: '0.8rem' }}
+                />
+                {violation === 'Others (If Any):' && isOtherViolationSelected && (
+                  <Form.Control
+                    type="text"
+                    name="otherViolationText"
+                    value={formData.otherViolationText}
+                    onChange={handleChange}
+                    placeholder="Specify other violation"
+                    style={{ ...FORM_STYLES.input, marginTop: '5px' }}
+                  />
+                )}
+              </div>
             ))}
           </div>
         </Form.Group>
 
         <Form.Group className="mb-2">
           <Form.Label>COMPANY STATEMENT</Form.Label>
-          <Form.Control as="textarea" rows={2} name="companyStatement" value={formData.companyStatement} onChange={handleChange} placeholder="Enter company statement here" style={FORM_STYLES.textarea} />
+          <Form.Control
+            as="textarea"
+            rows={2}
+            name="companyStatement"
+            value={formData.companyStatement}
+            onChange={handleChange}
+            placeholder="Enter company statement here"
+            style={FORM_STYLES.textarea}
+          />
         </Form.Group>
 
         <Form.Group className="mb-2">
           <Form.Label>I DISAGREE with company’s description of violation:</Form.Label>
-          <Form.Control type="text" name="disagree" value={formData.disagree} onChange={handleChange} placeholder="Enter your disagreement (if any)" style={FORM_STYLES.input} />
+          <Form.Control
+            type="text"
+            name="disagree"
+            value={formData.disagree}
+            onChange={handleChange}
+            placeholder="Enter your disagreement (if any)"
+            style={FORM_STYLES.input}
+          />
         </Form.Group>
 
         <h5 className="mb-2" style={{ fontSize: '1rem' }}>SIGNATURE</h5>
@@ -407,7 +460,14 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
         </div>
 
         <div className="text-center">
-          <motion.button type="button" className="btn rounded-pill px-4 py-2" style={FORM_STYLES.button} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handlePrint}>
+          <motion.button
+            type="button"
+            className="btn rounded-pill px-4 py-2"
+            style={FORM_STYLES.button}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handlePrint}
+          >
             Print Document
           </motion.button>
         </div>

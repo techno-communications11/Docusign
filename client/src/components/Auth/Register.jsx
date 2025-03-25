@@ -7,6 +7,7 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    department: "",
   });
 
   const [error, setError] = useState("");
@@ -46,6 +47,7 @@ const Register = () => {
           email: "",
           password: "",
           confirmPassword: "",
+          department: "",
         });
       } else {
         setError(data.message || "Registration failed");
@@ -93,6 +95,17 @@ const Register = () => {
                     required
                   />
                 </div>
+                <select
+                  className="form-select lite-input"
+                  name="department"
+                  value={userData.department}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Department</option>
+                  <option value="User">User</option>
+                  <option value="Admin">Admin</option>
+                </select>
 
                 <div className="col-md-12 position-relative">
                   <label htmlFor="password" className="form-label lite-label">Password</label>

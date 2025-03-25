@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4506/auth', // Your Express server port
+        target: 'https://writeupapi.techno-communications.com/auth', // Backend server
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
