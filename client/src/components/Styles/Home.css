@@ -1,0 +1,22 @@
+/* Custom CSS for modern UI */
+body {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-primary {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0044a8;
+    transform: scale(1.03);
+  }
