@@ -85,7 +85,7 @@ const ServiceCard = ({ title, description, logo, logoBg, path }) => {
           style={BUTTON_STYLES}
           onClick={() => navigate(path)}
         >
-          Sign Document
+          Create Document
         </motion.button>
       </div>
     </motion.div>
