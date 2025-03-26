@@ -278,7 +278,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
 
       ctx.font = '14px Cambria';
       ctx.fillText('EMPLOYEE SIGNATURE:', tableX + signatureColWidth / 4, contentY + 20);
-      ctx.fillText('SUPERVISOR SIGNATURE:', tableX + signatureColWidth + signatureColWidth / 4, contentY + 20);
+      ctx.fillText('SUPERVISOR SIGNATURE:', tableX + signatureColWidth + signatureColWidth / 4+10, contentY + 20);
       contentY += rowHeights.signature[1];
 
       ctx.fillText('DATE:', tableX + signatureColWidth / 10, contentY + 15);

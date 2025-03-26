@@ -8,6 +8,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://writeupapi.techno-communications.com/auth',
+        //  target: 'http://localhost:4509/auth',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
