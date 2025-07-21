@@ -1,6 +1,5 @@
 import  { useState } from "react";
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useMyContext } from "./MyContext";
 
