@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import './Styles/Home.css';
+import { motion } from 'framer-motion';
 
 // Centralized constants for styles and data
 const CARD_STYLES = {

@@ -2,6 +2,7 @@ import  { useState } from "react";
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useMyContext } from "./MyContext";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
