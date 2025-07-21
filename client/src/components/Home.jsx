@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import './Styles/Home.css';
@@ -40,6 +39,13 @@ const SERVICES = [
     logo:'/A.webp',
     logoBg: '#E6FCFF',
     path: '/activewireless',
+  },
+  {
+    title: 'Techno CA',
+    description: 'Access document signing services for Techno CA',
+    logo:'/logoT.webp',
+    logoBg: '#E6FCFF',
+    path: '/technoca',
   },
 ];
 

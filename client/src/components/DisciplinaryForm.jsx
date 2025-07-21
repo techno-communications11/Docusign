@@ -1,5 +1,5 @@
 // DisciplinaryForm.js
-import React, { useState, useRef } from 'react';
+import  { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Form } from 'react-bootstrap';
 import './Styles/DisciplinaryForm.css'; // Renamed CSS file for consistency

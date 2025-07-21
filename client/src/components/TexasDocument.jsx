@@ -1,5 +1,3 @@
-// TexasDocument.js
-import React from 'react';
 import DisciplinaryForm from './DisciplinaryForm';
 
 const TexasDocument = () => (
