@@ -1,74 +1,66 @@
-import { createContext, useContext, useState, useEffect } from "react";
+// import { createContext, useContext, useState } from "react";
 
-const MyContext = createContext();
+// const MyContext = createContext(null);
 
-export function MyProvider({ children }) {
-  const [users, setUsers] = useState([]); // Array of users
-  const [authState, setAuthState] = useState({
-    isAuthenticated: false,
-    role: null,
-    userId: null, // Optional: useful for user-specific actions
-    loading: true, // Track initial auth check
-  });
+// export function MyProvider({ children }) {
+//   const [users, setUsers] = useState([]);
 
-  // Check auth status on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/users/me', {
-          method: "GET",
-          credentials: "include",
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setAuthState({
-            isAuthenticated: true,
-            role: data.role,
-            userId: data.id,
-            loading: false,
-          });
-        } else {
-          setAuthState({ isAuthenticated: false, role: null, userId: null, loading: false });
-        }
-      } catch (error) {
-        console.error("Error checking auth:", error);
-        setAuthState({ isAuthenticated: false, role: null, userId: null, loading: false });
-      }
-    };
-    checkAuth();
-  }, []);
+//   // authState driven ONLY by /login response
+//   const [authState, setAuthState] = useState({
+//     isAuthenticated: false,
+//     user: null, // e.g. { id, role, email, ... }
+//     error: null,
+//   });
 
-  // Function to add or update users array
-  const addUser = (newUsers) => {
-    setUsers(newUsers); // Expects an array of users
-  };
+//   const addUser = (newUsers) => {
+//     setUsers(newUsers);
+//   };
 
-  // Function to update auth state (e.g., after login/logout)
-  const updateAuth = (isAuthenticated, role, userId) => {
-    setAuthState({ isAuthenticated, role, userId, loading: false });
-  };
+//   // userData is the full user object from /login
+//   const updateAuth = (userData) => {
+//     if (userData) {
+//       setAuthState({
+//         isAuthenticated: true,
+//         user: userData,
+//         error: null,
+//       });
+//     } else {
+//       setAuthState({
+//         isAuthenticated: false,
+//         user: null,
+//         error: null,
+//       });
+//     }
+//   };
 
-  // Logout function
-  const logout = async () => {
-    try {
-      await fetch('/api/logout', {
-        method: "POST",
-        credentials: "include",
-      });
-      updateAuth(false, null, null);
-    } catch (error) {
-      console.error("Logout failed:", error);
-      updateAuth(false, null, null);
-    }
-  };
+//   const logout = async () => {
+//     try {
+//       await fetch("/logout", {
+//         method: "POST",
+//         credentials: "include",
+//       });
+//     } catch (err) {
+//       console.error("Logout failed:", err);
+//     } finally {
+//       updateAuth(null);
+//     }
+//   };
 
-  return (
-    <MyContext.Provider value={{ users, addUser, authState, updateAuth, logout }}>
-      {children}
-    </MyContext.Provider>
-  );
-}
+//   const value = {
+//     users,
+//     authState,
+//     addUser,
+//     updateAuth,
+//     logout,
+//   };
 
-export function useMyContext() {
-  return useContext(MyContext);
-}
+//   return <MyContext.Provider value={value}>{children}</MyContext.Provider>;
+// }
+
+// export function useMyContext() {
+//   const ctx = useContext(MyContext);
+//   if (!ctx) {
+//     throw new Error("useMyContext must be used within MyProvider");
+//   }
+//   return ctx;
+// }

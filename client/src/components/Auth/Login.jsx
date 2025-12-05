@@ -1,82 +1,68 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useMyContext } from "./MyContext";
-import { motion } from "framer-motion";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
-  const { updateAuth } = useMyContext();
 
   const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsSubmitting(true);
+
     try {
-      const loginResponse = await fetch(`/api/login`, {
+      const loginResponse = await fetch(`/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(credentials),
       });
 
-      const loginData = await loginResponse.json();
+      let loginData = {};
+      try {
+        loginData = await loginResponse.json();
+      } catch (err) {
+        return err;
+      }
+
       if (!loginResponse.ok) {
         throw new Error(loginData.error || "Login failed");
       }
 
-      const userResponse = await fetch(`/api/users/me`, {
-        method: "GET",
-        credentials: "include",
-      });
+      localStorage.setItem("userData", JSON.stringify(loginData.user)); // FIXED
 
-      const userData = await userResponse.json();
-      if (!userResponse.ok) {
-        throw new Error(userData.error || "Failed to fetch user data");
-      }
-
-      const { role, id } = userData;
-      console.log("Login successful, role:", role);
-
-      // Update global auth state
-      updateAuth(true, role, id);
-
-      // Navigate based on role
-      switch (role) {
-        case "Admin":
-          navigate("/home", { replace: true });
-          break;
-        case "User":
-          navigate("/home", { replace: true });
-          break;
-        default:
-          navigate("/", { replace: true });
-          break;
+      const role = loginData.user.role;
+      if (role === "Admin" || role === "User") {
+        navigate("/home", { replace: true });
+      } else {
+        navigate("/", { replace: true });
       }
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
-      console.error("Login error:", err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
+    <div
       className="container-fluid min-vh-100 d-flex flex-column justify-content-center position-relative"
       style={{
         background: "linear-gradient(135deg, #ffffff 0%, #f3e7e9 100%)",
         overflow: "hidden",
       }}
     >
-      {/* Decorative Shapes */}
+      {/* Decorative shapes */}
       <div
         className="position-absolute"
         style={{
@@ -102,11 +88,8 @@ const Login = () => {
         }}
       />
 
-      {/* Centered Heading */}
-      <motion.h1
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+      {/* Heading */}
+      <h1
         className="text-center mb-5"
         style={{
           color: "#E10174",
@@ -117,31 +100,21 @@ const Login = () => {
         }}
       >
         Welcome Back!
-      </motion.h1>
+      </h1>
 
       <div className="row w-100 m-0">
-        {/* Left side with logo */}
-        <motion.div
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="col-md-6 d-flex justify-content-center align-items-center"
-        >
-          <motion.img
-            transition={{ type: "spring", stiffness: 300 }}
+        {/* Logo side */}
+        <div className="col-md-6 d-flex justify-content-center align-items-center">
+          <img
             src="logoT.webp"
             alt="Logo"
-            className="img-fluid w-75"
+            className="img-fluid"
+            style={{ maxWidth: "70%" }}
           />
-        </motion.div>
+        </div>
 
-        {/* Right side with login form */}
-        <motion.div
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="col-md-6 d-flex justify-content-center align-items-center p-2 p-lg-5"
-        >
+        {/* Login card */}
+        <div className="col-md-6 d-flex justify-content-center align-items-center p-2 p-lg-5">
           <div
             className="card shadow-lg col-12 col-md-8 col-lg-10 border-0 rounded-4"
             style={{
@@ -150,41 +123,33 @@ const Login = () => {
               border: "1px solid rgba(225, 1, 116, 0.1)",
             }}
           >
-            <div className="card-body  p-5">
+            <div className="card-body p-5">
               {error && (
-                <motion.div
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="alert alert-danger rounded-3"
-                  style={{
-                    borderColor: "#E10174",
-                  }}
-                >
-                  {error}
-                </motion.div>
+                <div className="alert alert-danger rounded-3">{error}</div>
               )}
+
               <form onSubmit={handleSubmit}>
                 <h4
                   className="mb-4 text-center fw-bold"
-                  style={{
-                    color: "#E10174",
-                  }}
+                  style={{ color: "#E10174" }}
                 >
                   Login to Your Account
                 </h4>
+
+                {/* Email */}
                 <div className="mb-3 position-relative">
                   <input
                     type="email"
                     className="form-control shadow-none rounded-pill text-center"
-                    id="email"
                     name="email"
                     value={credentials.email}
                     onChange={handleChange}
                     placeholder="Enter email"
                     required
+                    autoComplete="email"
                     style={{
                       borderColor: "#E10174",
-                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      backgroundColor: "rgba(255, 255, 255, 0.85)",
                     }}
                   />
                   <FaEnvelope
@@ -193,19 +158,21 @@ const Login = () => {
                     color="#E10174"
                   />
                 </div>
+
+                {/* Password */}
                 <div className="mb-3 position-relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     className="form-control shadow-none rounded-pill text-center"
-                    id="password"
                     name="password"
                     value={credentials.password}
                     onChange={handleChange}
                     placeholder="Enter password"
                     required
+                    autoComplete="current-password"
                     style={{
                       borderColor: "#E10174",
-                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      backgroundColor: "rgba(255, 255, 255, 0.85)",
                     }}
                   />
                   <FaLock
@@ -213,39 +180,45 @@ const Login = () => {
                     size={18}
                     color="#E10174"
                   />
-                  <motion.span
-                    whileHover={{ scale: 1.2 }}
+                  <span
                     className="position-absolute end-0 me-3 top-50 translate-middle-y"
-                    style={{
-                      cursor: "pointer",
-                      color: "#E10174",
-                    }}
-                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ cursor: "pointer", color: "#E10174" }}
+                    onClick={() => setShowPassword((prev) => !prev)}
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </motion.span>
+                  </span>
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+
+                {/* Button */}
+                <button
                   type="submit"
                   className="btn text-white w-100 mt-3 rounded-pill"
+                  disabled={isSubmitting}
                   style={{
                     backgroundColor: "#E10174",
                     borderColor: "#E10174",
                     padding: "12px",
+                    fontWeight: "bold",
                     boxShadow: "0 10px 20px rgba(225, 1, 116, 0.3)",
-                    transition: "all 0.3s ease",
+                    transition: "0.3s",
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.boxShadow =
+                      "0 12px 24px rgba(225, 1, 116, 0.5)";
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.boxShadow =
+                      "0 10px 20px rgba(225, 1, 116, 0.3)";
                   }}
                 >
-                  Login
-                </motion.button>
+                  {isSubmitting ? "Logging in..." : "Login"}
+                </button>
               </form>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

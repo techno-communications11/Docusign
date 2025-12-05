@@ -1,35 +1,38 @@
- // Import the required modules
- import mysql2 from 'mysql2';
-// Load environment variables from .env file
-import dotenv from 'dotenv';
-// Load environment variables from .env file
+// src/config/db.js (or dbConnection.js)
 
+// Import mysql2
+import mysql2 from "mysql2";
 
+// Load environment variables
+import dotenv from "dotenv";
 dotenv.config();
 
-// Create a MySQL connection pool with promise-based API
-const db = mysql2.createPool({
-  // Use the environment variables for the database connection
-  
+// Create a MySQL pool using promise API
+const pool = mysql2.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  waitForConnections: true, // Default: true - wait for the connection to be established
-  connectionLimit: 20, // Maximum number of connections
-  queueLimit: 0, // Unlimited queueing
+  waitForConnections: true,
+  connectionLimit: 20,
+  queueLimit: 0,
 });
 
-// Test the database connection
-db.getConnection((err, connection) => { // Get a connection
-  // Check for errors
-  if (err) {
-    console.error('Error connecting to the database: ', err);
-  } else {
-    // console.log('Database connected!');
-    connection.release(); // Release the connection
+// Convert pool to promise-based API
+const db = pool.promise();
+
+// OPTIONAL: Test the DB connection on boot
+(async () => {
+  try {
+    const connection = await db.getConnection();
+    console.log("Database connected successfully");
+    connection.release();
+  } catch (err) {
+    console.error("❌ Database connection failed:");
+    console.error(err.message);
+    // If connection fails, you may want to exit
+    // process.exit(1);
   }
-});
+})();
 
-// Export the promise-based pool
-export default db.promise();
+export default db;

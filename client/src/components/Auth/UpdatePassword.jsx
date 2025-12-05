@@ -59,7 +59,7 @@ const UpdatePassword = () => {
   };
 
   return (
-    <div className="d-flex min-vh-100 bg-light">
+    <div className="d-flex mt-5">
       <div className="container-fluid my-auto">
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-6 col-xl-5">
@@ -96,7 +96,7 @@ const UpdatePassword = () => {
                   </div>
 
                   {/* Password Input */}
-                  <div className="input-group mb-4 position-relative">
+                  <div className="input-group mb-2 position-relative">
                     <span className="input-group-text border-end-0 bg-transparent">
                       <FaLock className="text-muted" size={18} />
                     </span>

@@ -1,6 +1,6 @@
+// src/components/Home.jsx
 import { useNavigate } from 'react-router-dom';
 import './Styles/Home.css';
-import { motion } from 'framer-motion';
 
 // Centralized constants for styles and data
 const CARD_STYLES = {
@@ -36,14 +36,14 @@ const SERVICES = [
   {
     title: 'Activewireles',
     description: 'Access document signing services for Activewireles',
-    logo:'/A.webp',
+    logo: '/A.webp',
     logoBg: '#E6FCFF',
     path: '/activewireless',
   },
   {
     title: 'Techno CA',
     description: 'Access document signing services for Techno CA',
-    logo:'/logoT.webp',
+    logo: '/logoT.webp',
     logoBg: '#E6FCFF',
     path: '/technoca',
   },
@@ -53,20 +53,9 @@ const SERVICES = [
 const ServiceCard = ({ title, description, logo, logoBg, path }) => {
   const navigate = useNavigate();
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 100, damping: 15 },
-    },
-  };
-
   return (
-    <motion.div
+    <div
       className="card border-0 h-100"
-      variants={cardVariants}
-      whileHover={{ y: -8, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)', transition: { duration: 0.3 } }}
       style={CARD_STYLES}
     >
       <div className="card-body p-5">
@@ -83,59 +72,49 @@ const ServiceCard = ({ title, description, logo, logoBg, path }) => {
             {title}
           </h3>
         </div>
+
         <p className="card-text text-muted mb-4">{description}</p>
-        <motion.button
+
+        <button
           className="btn w-100 py-2"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
           style={BUTTON_STYLES}
           onClick={() => navigate(path)}
         >
           Create Document
-        </motion.button>
+        </button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
 // Main Home component
 function Home() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.3 } },
-  };
-
-  const headingVariants = {
-    hidden: { opacity: 0, y: -50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-  };
-
   return (
-    <motion.div
-      className="container-fluid max-vh-100 mt-5 d-flex flex-column justify-content-center align-items-center p-4"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+    <div
+      className="container-fluid mt-5 d-flex flex-column justify-content-center align-items-center p-4"
     >
       {/* Header */}
-      <motion.div className="text-center mb-5" variants={headingVariants}>
-        <h1 className="fw-bold mb-3" style={{ color: '#172B4D', fontSize: '2.5rem' }}>
+      <div className="text-center mb-5">
+        <h1
+          className="fw-bold mb-3"
+          style={{ color: '#172B4D', fontSize: '2.5rem' }}
+        >
           Welcome to Our Services
         </h1>
         <p className="text-muted lead" style={{ fontSize: '1.25rem' }}>
           Select a service to sign documents
         </p>
-      </motion.div>
+      </div>
 
-      {/* Cards */}
-      <div className="row g-5 w-100 justify-content-center">
+      {/* Service Cards */}
+      <div className="row g-2 w-100 justify-content-center">
         {SERVICES.map((service, index) => (
-          <div key={index} className="col-md-4 col-lg-4">
+          <div key={index} className="col-md-3 col-lg-3">
             <ServiceCard {...service} />
           </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
