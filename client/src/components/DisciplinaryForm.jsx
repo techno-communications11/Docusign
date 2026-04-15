@@ -1,6 +1,6 @@
 // DisciplinaryForm.js
 import  { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { Form } from 'react-bootstrap';
 import './Styles/DisciplinaryForm.css'; // Renamed CSS file for consistency
 
@@ -321,7 +321,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
   const isOtherViolationSelected = formData.violation.includes('Others (If Any):');
 
   return (
-    <motion.div
+    <Motion.div
       className="print-container card mt-4"
       style={FORM_STYLES.container}
       variants={containerVariants}
@@ -460,7 +460,7 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
         </div>
 
         <div className="text-center">
-          <motion.button
+          <Motion.button
             type="button"
             className="btn rounded-pill px-4 py-2"
             style={FORM_STYLES.button}
@@ -469,10 +469,10 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
             onClick={handlePrint}
           >
             Print Document
-          </motion.button>
+          </Motion.button>
         </div>
       </Form>
-    </motion.div>
+    </Motion.div>
   );
 };
 

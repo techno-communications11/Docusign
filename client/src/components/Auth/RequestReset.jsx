@@ -1,48 +1,37 @@
-import  { useState } from "react";
-import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
+import { useState } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { useMyContext } from "./useMyContext";
+import { FaEnvelope } from "react-icons/fa";
 import { motion as Motion } from "framer-motion";
-const Login = () => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+
+export const RequestReset = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { updateAuth } = useMyContext();
 
-  const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleRequest = async (event) => {
+    event.preventDefault();
+    setMessage("");
     setError("");
+
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+
     setIsSubmitting(true);
-
-    const payload = {
-      email: credentials.email.trim(),
-      password: credentials.password,
-    };
-
     try {
-      const loginResponse = await fetch(`/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
+      await axios.post("/api/request-reset", { email });
 
-      const loginData = await loginResponse.json();
-      if (!loginResponse.ok) {
-        throw new Error(loginData.error || "Login failed");
-      }
+      setMessage("Reset link sent successfully");
 
-      const { role, id } = loginData.user;
-      updateAuth(true, role, id);
-      navigate("/home", { replace: true });
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     } catch (err) {
-      setError(err.message || "Login failed. Please try again.");
+      setError(err.response?.data?.message || err.response?.data || "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -59,7 +48,6 @@ const Login = () => {
         overflow: "hidden",
       }}
     >
-      {/* Decorative Shapes */}
       <div
         className="position-absolute"
         style={{
@@ -85,7 +73,6 @@ const Login = () => {
         }}
       />
 
-      {/* Centered Heading */}
       <Motion.h1
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -99,11 +86,10 @@ const Login = () => {
           textShadow: "2px 2px 4px rgba(225, 1, 116, 0.1)",
         }}
       >
-        Welcome Back!
+        Reset Password
       </Motion.h1>
 
       <div className="row w-100 m-0">
-        {/* Left side with logo */}
         <Motion.div
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -118,7 +104,6 @@ const Login = () => {
           />
         </Motion.div>
 
-        {/* Right side with login form */}
         <Motion.div
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -133,37 +118,43 @@ const Login = () => {
               border: "1px solid rgba(225, 1, 116, 0.1)",
             }}
           >
-            <div className="card-body  p-5">
+            <div className="card-body p-5">
+              {message && (
+                <Motion.div
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="alert alert-success rounded-3"
+                >
+                  {message}
+                </Motion.div>
+              )}
               {error && (
                 <Motion.div
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   className="alert alert-danger rounded-3"
-                  style={{
-                    borderColor: "#E10174",
-                  }}
+                  style={{ borderColor: "#E10174" }}
                 >
                   {error}
                 </Motion.div>
               )}
-              <form onSubmit={handleSubmit}>
-                <h4
-                  className="mb-4 text-center fw-bold"
-                  style={{
-                    color: "#E10174",
-                  }}
-                >
-                  Login to Your Account
+
+              <form onSubmit={handleRequest}>
+                <h4 className="mb-2 text-center fw-bold" style={{ color: "#E10174" }}>
+                  Forgot your password?
                 </h4>
+                <p className="text-muted text-center mb-4" style={{ fontSize: "14px" }}>
+                  Enter your email and we'll send you a reset link.
+                </p>
+
                 <div className="mb-3 position-relative">
                   <input
                     type="email"
+                    id="emailInput"
                     className="form-control shadow-none rounded-pill text-center"
-                    id="email"
-                    name="email"
-                    value={credentials.email}
-                    onChange={handleChange}
                     placeholder="Enter email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     style={{
                       borderColor: "#E10174",
@@ -176,44 +167,12 @@ const Login = () => {
                     color="#E10174"
                   />
                 </div>
-                <div className="mb-3 position-relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="form-control shadow-none rounded-pill text-center"
-                    id="password"
-                    name="password"
-                    value={credentials.password}
-                    onChange={handleChange}
-                    placeholder="Enter password"
-                    required
-                    style={{
-                      borderColor: "#E10174",
-                      backgroundColor: "rgba(255, 255, 255, 0.8)",
-                    }}
-                  />
-                  <FaLock
-                    className="position-absolute start-0 top-50 translate-middle-y ms-3"
-                    size={18}
-                    color="#E10174"
-                  />
-                  <Motion.span
-                    whileHover={{ scale: 1.2 }}
-                    className="position-absolute end-0 me-3 top-50 translate-middle-y"
-                    style={{
-                      cursor: "pointer",
-                      color: "#E10174",
-                    }}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </Motion.span>
-                </div>
-                <Link to="/forgot-password">Forgot password?</Link>
+
                 <Motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  type="submit"
                   className="btn text-white w-100 mt-3 rounded-pill"
+                  type="submit"
                   disabled={isSubmitting}
                   style={{
                     backgroundColor: "#E10174",
@@ -223,8 +182,14 @@ const Login = () => {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  {isSubmitting ? "Signing in..." : "Login"}
+                  {isSubmitting ? "Sending..." : "Send reset link"}
                 </Motion.button>
+
+                <div className="text-center mt-3">
+                  <Link to="/" style={{ color: "#E10174", fontWeight: "600" }}>
+                    Back to login
+                  </Link>
+                </div>
               </form>
             </div>
           </div>
@@ -233,5 +198,3 @@ const Login = () => {
     </Motion.div>
   );
 };
-
-export { Login };

@@ -1,56 +1,42 @@
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowRight } from 'react-icons/fa';
 import './Styles/Home.css';
-
-// Centralized constants for styles and data
-const CARD_STYLES = {
-  borderRadius: '12px',
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-  backgroundColor: '#ffffff',
-};
-
-const BUTTON_STYLES = {
-  backgroundColor: '#0052CC',
-  borderColor: '#0052CC',
-  borderRadius: '8px',
-  color: '#ffffff',
-  fontWeight: '500',
-  boxShadow: 'none',
-};
 
 const SERVICES = [
   {
     title: 'Texas Mobile PCS',
     description: 'Access document signing services for Texas Mobile PCS',
     logo: '/texas-logo.jpg',
-    logoBg: '#DEEBFF',
+    category: 'Mobile PCS',
     path: '/texasdocu',
   },
   {
     title: 'Techno Communications',
     description: 'Access document signing services for Techno Communications',
     logo: '/logoT.webp',
-    logoBg: '#E6FCFF',
+    category: 'Communications',
     path: '/technodocu',
   },
   {
-    title: 'Activewireles',
-    description: 'Access document signing services for Activewireles',
-    logo:'/A.webp',
-    logoBg: '#E6FCFF',
+    title: 'Active Wireless',
+    description: 'Access document signing services for Active Wireless',
+    logo: '/A.webp',
+    category: 'Wireless',
     path: '/activewireless',
   },
   {
     title: 'Techno CA',
     description: 'Access document signing services for Techno CA',
-    logo:'/logoT.webp',
-    logoBg: '#E6FCFF',
+    logo: '/logoT.webp',
+    category: 'CA',
     path: '/technoca',
   },
 ];
 
-// Reusable ServiceCard component
-const ServiceCard = ({ title, description, logo, logoBg, path }) => {
+
+
+const ServiceCard = ({ title, description, logo, category, path }) => {
   const navigate = useNavigate();
 
   const cardVariants = {
@@ -63,79 +49,79 @@ const ServiceCard = ({ title, description, logo, logoBg, path }) => {
   };
 
   return (
-    <motion.div
-      className="card border-0 h-100"
+    <Motion.div
+      className="home-service-card h-100"
       variants={cardVariants}
-      whileHover={{ y: -8, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)', transition: { duration: 0.3 } }}
-      style={CARD_STYLES}
+      whileHover={{ y: -10, transition: { duration: 0.25 } }}
     >
-      <div className="card-body p-5">
-        <div className="d-flex align-items-center mb-4">
-          <div className="me-3 p-2 rounded-circle" style={{ backgroundColor: logoBg }}>
+      <div className="home-card-accent" />
+      <div className="home-card-body">
+        <div className="d-flex align-items-start justify-content-between gap-3">
+          <div className="home-logo-shell">
             <img
               src={logo}
               alt={`${title} Logo`}
-              className="img-fluid"
-              style={{ width: '50px', height: '50px', objectFit: 'contain' }}
+              className="home-service-logo"
             />
           </div>
-          <h3 className="card-title mb-0 fw-bold" style={{ color: '#172B4D' }}>
-            {title}
-          </h3>
+          <span className="home-card-chip">
+            {category}
+          </span>
         </div>
-        <p className="card-text text-muted mb-4">{description}</p>
-        <motion.button
-          className="btn w-100 py-2"
+
+        <h3 className="home-card-title">{title}</h3>
+        <p className="home-card-text">{description}</p>
+
+        <Motion.button
+          className="home-card-button"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          style={BUTTON_STYLES}
           onClick={() => navigate(path)}
         >
-          Create Document
-        </motion.button>
+          Create Document <FaArrowRight />
+        </Motion.button>
       </div>
-    </motion.div>
+    </Motion.div>
   );
 };
 
-// Main Home component
 function Home() {
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.3 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
   };
 
   const headingVariants = {
-    hidden: { opacity: 0, y: -50 },
+    hidden: { opacity: 0, y: -30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
   };
 
   return (
-    <motion.div
-      className="container-fluid max-vh-100 mt-5 d-flex flex-column justify-content-center align-items-center p-4"
+    <Motion.div
+      className="home-page"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* Header */}
-      <motion.div className="text-center mb-5" variants={headingVariants}>
-        <h1 className="fw-bold mb-3" style={{ color: '#172B4D', fontSize: '2.5rem' }}>
-          Welcome to Our Services
-        </h1>
-        <p className="text-muted lead" style={{ fontSize: '1.25rem' }}>
-          Select a service to sign documents
+      <Motion.div className="home-hero" variants={headingVariants}>
+        <span className="home-eyebrow">Document workspace</span>
+        <h2>Choose a service and start a write-up</h2>
+        <p>
+          A focused signing hub for quickly preparing the right document for each
+          company, location, and workflow.
         </p>
-      </motion.div>
 
-      {/* Cards */}
-      <div className="row g-5 w-100 justify-content-center">
-        {SERVICES.map((service, index) => (
-          <div key={index} className="col-md-4 col-lg-4">
+       
+      </Motion.div>
+
+      <div className="home-services-grid">
+        {SERVICES.map((service) => (
+          <Motion.div key={service.title} variants={containerVariants}>
             <ServiceCard {...service} />
-          </div>
+          </Motion.div>
         ))}
       </div>
-    </motion.div>
+    </Motion.div>
   );
 }
 

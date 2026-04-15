@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
-
-const MyContext = createContext();
+import { useState, useEffect } from "react";
+import { AuthContext } from "./AuthContext";
 
 export function MyProvider({ children }) {
   const [users, setUsers] = useState([]); // Array of users
@@ -63,12 +62,8 @@ export function MyProvider({ children }) {
   };
 
   return (
-    <MyContext.Provider value={{ users, addUser, authState, updateAuth, logout }}>
+    <AuthContext.Provider value={{ users, addUser, authState, updateAuth, logout }}>
       {children}
-    </MyContext.Provider>
+    </AuthContext.Provider>
   );
-}
-
-export function useMyContext() {
-  return useContext(MyContext);
 }

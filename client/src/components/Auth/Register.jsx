@@ -1,5 +1,5 @@
-import  { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useState } from "react";
+import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUserShield } from "react-icons/fa";
 import "../Styles/Register.css";
 
 const Register = () => {
@@ -7,12 +7,13 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    department: "",
+    role: "",
   });
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -24,6 +25,12 @@ const Register = () => {
     setLoading(true);
     setError("");
     setSuccess("");
+
+    if (!userData.role) {
+      setError("Please select a role");
+      setLoading(false);
+      return;
+    }
 
     if (userData.password !== userData.confirmPassword) {
       setError("Passwords do not match");
@@ -47,7 +54,7 @@ const Register = () => {
           email: "",
           password: "",
           confirmPassword: "",
-          department: "",
+          role: "",
         });
       } else {
         setError(data.message || "Registration failed");
@@ -59,34 +66,36 @@ const Register = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-center p-5">Loading...</div>;
-  }
-
   return (
-    <div className="container mt-5">
-      {success && (
-        <div className="alert alert-success lite-alert" role="alert">
-          {success}
+    <div className="register-page">
+      <section className="register-shell">
+        <div className="register-heading">
+          <span>Admin</span>
+          <h2>Register New User</h2>
+          <p>Create a secure account and assign the correct access role.</p>
         </div>
-      )}
-      {error && (
-        <div className="alert alert-danger lite-alert" role="alert">
-          {error}
-        </div>
-      )}
 
-      <section className="  mt-5 d-flex justify-content-center align-items-center m-auto">
-        <div className="card lite-card ">
-          <div className="card-body">
-            <h2 className="card-title lite-title">Register New User</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="row g-3">
-                <div className="col-md-12">
-                  <label htmlFor="email" className="form-label lite-label">Email</label>
+        <div className="register-card">
+          {success && (
+            <div className="alert alert-success register-alert" role="alert">
+              {success}
+            </div>
+          )}
+          {error && (
+            <div className="alert alert-danger register-alert" role="alert">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3 ">
+              <div className="col-12 ">
+                <label htmlFor="email" className="form-label register-label ">Email address</label>
+                <div className="register-input-wrap">
+                  <FaEnvelope />
                   <input
                     type="email"
-                    className="form-control lite-input"
+                    className="form-control register-input text-center"
                     id="email"
                     name="email"
                     value={userData.email}
@@ -95,23 +104,34 @@ const Register = () => {
                     required
                   />
                 </div>
-                <select
-                  className="form-select lite-input"
-                  name="department"
-                  value={userData.department}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Department</option>
-                  <option value="User">User</option>
-                  <option value="Admin">Admin</option>
-                </select>
+              </div>
 
-                <div className="col-md-12 position-relative">
-                  <label htmlFor="password" className="form-label lite-label">Password</label>
+              <div className="col-12">
+                <label htmlFor="role" className="form-label register-label">Role</label>
+                <div className="register-input-wrap ">
+                  <FaUserShield />
+                  <select
+                    className="form-select register-input text-center"
+                    id="role"
+                    name="role"
+                    value={userData.role}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="" >Select role</option>
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <label htmlFor="password" className="form-label register-label">Password</label>
+                <div className="register-input-wrap">
+                  <FaLock />
                   <input
                     type={showPassword ? "text" : "password"}
-                    className="form-control lite-input"
+                    className="form-control register-input text-center"
                     id="password"
                     name="password"
                     value={userData.password}
@@ -121,18 +141,22 @@ const Register = () => {
                   />
                   <button
                     type="button"
-                    className="lite-toggle-password"
+                    className="register-toggle-password"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
                 </div>
+              </div>
 
-                <div className="col-md-12 position-relative">
-                  <label htmlFor="confirmPassword" className="form-label lite-label">Confirm Password</label>
+              <div className="col-md-6">
+                <label htmlFor="confirmPassword" className="form-label register-label">Confirm password</label>
+                <div className="register-input-wrap">
+                  <FaLock />
                   <input
-                    type={showPassword ? "text" : "password"}
-                    className="form-control lite-input"
+                    type={showConfirmPassword ? "text" : "password"}
+                    className="form-control register-input text-center"
                     id="confirmPassword"
                     name="confirmPassword"
                     value={userData.confirmPassword}
@@ -142,18 +166,20 @@ const Register = () => {
                   />
                   <button
                     type="button"
-                    className="lite-toggle-password"
-                    onClick={() => setShowPassword(!showPassword)}
+                    className="register-toggle-password"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                   >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
                 </div>
               </div>
-              <button type="submit" className="btn lite-btn-primary mt-3 w-100 text-white fw-bolder">
-                Register
-              </button>
-            </form>
-          </div>
+            </div>
+
+            <button type="submit" className="register-submit" disabled={loading}>
+              {loading ? "Creating user..." : "Create user"}
+            </button>
+          </form>
         </div>
       </section>
     </div>

@@ -1,6 +1,6 @@
 
 import { Navigate } from "react-router-dom";
-import { useMyContext } from "./MyContext";
+import { useMyContext } from "./useMyContext";
 
 const PrivateRoute = ({ element }) => {
   const { authState } = useMyContext();

@@ -1,18 +1,16 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { FaBars, FaFileSignature, FaHome, FaTimes, FaUserPlus } from "react-icons/fa";
 import { RiLogoutBoxRLine } from "react-icons/ri";
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import "../Styles/CustomNavbar.css";
-import { useMyContext } from "./MyContext";
+import { useMyContext } from "./useMyContext";
 
 const CustomNavbar = () => {
   const { authState, logout } = useMyContext();
-  // const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleNavLinkClick = () => {
-    const navbar = document.querySelector(".navbar-collapse");
-    if (navbar) {
-      navbar.classList.remove("show");
-    }
+    setIsOpen(false);
   };
 
   // Show nothing while loading or if not authenticated
@@ -20,59 +18,101 @@ const CustomNavbar = () => {
     return null;
   }
 
-  // Role-based home routes for Navbar.Brand
   const homeRoute =
     {
       Admin: "/home",
       User: "/home",
      
-    }[authState.role] || "/"; // Fallback to /userdashboard if role not matched
+    }[authState.role] || "/";
+
+  const navItems = [
+    { label: "Dashboard", path: homeRoute, icon: <FaHome /> },
+    { label: "Texas Mobile PCS", path: "/texasdocu", icon: <FaFileSignature /> },
+    { label: "Techno Communications", path: "/technodocu", icon: <FaFileSignature /> },
+    { label: "Active Wireless", path: "/activewireless", icon: <FaFileSignature /> },
+    { label: "Techno CA", path: "/technoca", icon: <FaFileSignature /> },
+  ];
 
   return (
-    <Navbar expand="lg" className="jira-navbar">
-      <Container fluid>
-        <Navbar.Brand
-          as={Link}
-          to={homeRoute}
-          className="d-flex align-items-center"
-        >
-          <img src="logo.webp" height={30} alt="Logo" className="jira-logo" />
-          <span className="jira-brand ms-2">Techno Communications LLC</span>
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="navbarNav" className="jira-toggle" />
-        <Navbar.Collapse id="navbarNav">
-          <Nav className="ms-auto d-flex align-items-center">
-            {authState.role === "Admin" && (
-                <Nav.Link
-                  as={Link}
-                  to="/register"
-                  className="fw-bolder jira-nav-link"
-                  onClick={handleNavLinkClick}
-                >
-                  Register
-                </Nav.Link>
-              )}
-                <Nav.Link
-                  as={Link}
-                  to="/resetpassword"
-                  className="fw-bolder jira-nav-link"
-                  onClick={handleNavLinkClick}
-                >
-                  Reset Password
-                </Nav.Link>
-              
-            
-            <Button
-              variant="outline-danger"
-              className="jira-logout-btn ms-2"
-              onClick={logout}
+    <>
+      <button
+        type="button"
+        className="side-nav-toggle"
+        onClick={() => setIsOpen(true)}
+        aria-label="Open navigation"
+      >
+        <FaBars />
+      </button>
+
+      {isOpen && (
+        <button
+          type="button"
+          className="side-nav-backdrop"
+          onClick={() => setIsOpen(false)}
+          aria-label="Close navigation"
+        />
+      )}
+
+      <aside className={`side-nav ${isOpen ? "side-nav-open" : ""}`}>
+        <div className="side-nav-header">
+          <NavLink to={homeRoute} className="side-nav-brand" onClick={handleNavLinkClick}>
+            <img src="/logo.webp" alt="Logo" className="side-nav-logo" />
+            <span>
+              <strong>Techno</strong>
+              <small>Communications LLC</small>
+            </span>
+          </NavLink>
+
+          <button
+            type="button"
+            className="side-nav-close"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close navigation"
+          >
+            <FaTimes />
+          </button>
+        </div>
+
+        <div className="side-nav-role">
+          <span>{authState.role || "User"}</span>
+          <small>Signed in workspace</small>
+        </div>
+
+        <nav className="side-nav-links" aria-label="Main navigation">
+          {navItems.map(({ label, path, icon }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) =>
+                `side-nav-link ${isActive ? "side-nav-link-active" : ""}`
+              }
+              onClick={handleNavLinkClick}
             >
-              <RiLogoutBoxRLine className="me-1" /> Logout
-            </Button>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+              {icon}
+              <span>{label}</span>
+            </NavLink>
+          ))}
+
+          {authState.role === "Admin" && (
+            <NavLink
+              to="/register"
+              className={({ isActive }) =>
+                `side-nav-link ${isActive ? "side-nav-link-active" : ""}`
+              }
+              onClick={handleNavLinkClick}
+            >
+              <FaUserPlus />
+              <span>Register User</span>
+            </NavLink>
+          )}
+        </nav>
+
+        <button type="button" className="side-nav-logout" onClick={logout}>
+          <RiLogoutBoxRLine />
+          <span>Logout</span>
+        </button>
+      </aside>
+    </>
   );
 };
 

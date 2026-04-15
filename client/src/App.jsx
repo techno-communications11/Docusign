@@ -6,10 +6,11 @@ import PrivateRoute from "./components/Auth/PrivateRoute.jsx";
 import Home from "./components/Home.jsx";
 import TexasDocument from "./components/TexasDocument.jsx";
 import TechnoDocument from "./components/TechnoDocument.jsx";
-import { useMyContext } from "./components/Auth/MyContext";
+import { useMyContext } from "./components/Auth/useMyContext";
 import CustomNavbar from "./components/Auth/CustomNavbar.jsx";
 import Activewireles from "./components/Activewireles.jsx";
 import Techno_CA_Letterhead from "./components/Techno_CA_letterHead.jsx";
+import { RequestReset } from "./components/Auth/RequestReset.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -23,40 +24,31 @@ const AppContent = () => {
 
   return (
     <>
-      {authState.isAuthenticated && location.pathname !== "/" && <CustomNavbar />}
-      <Routes>
-        <Route
-          path="/"
-          element={
-            
-              <Login />
-            
-          }
-        />
-       
-        {authState.isAuthenticated && authState.role === "Admin" && (
-          <Route path="/register" element={<PrivateRoute element={<Register />} />} />
-        )}
-        {authState.isAuthenticated && (
-          <>
-           <Route path="/home" element={<PrivateRoute element={<Home />} />} />
-           <Route path="/technodocu" element={<PrivateRoute element={<TechnoDocument />} />} />
-           <Route path="/texasdocu" element={<PrivateRoute element={<TexasDocument />} />} />
-           <Route path="/activewireless" element={<PrivateRoute element={<Activewireles />} />} />
-            <Route path="/technoca" element={<PrivateRoute element={<Techno_CA_Letterhead />} />} />
-            
-            
-            <Route
-              path="/resetpassword"
-              element={<PrivateRoute element={<UpdatePassword />} />}
-            />
-          </>
-        )}
-      
-       
-      
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      {authState.isAuthenticated && location.pathname !== "/" ? (
+        <div className="authenticated-layout">
+          <CustomNavbar />
+          <main className="authenticated-content">
+            <Routes>
+              {authState.role === "Admin" && (
+                <Route path="/register" element={<PrivateRoute element={<Register />} />} />
+              )}
+              <Route path="/home" element={<PrivateRoute element={<Home />} />} />
+              <Route path="/technodocu" element={<PrivateRoute element={<TechnoDocument />} />} />
+              <Route path="/texasdocu" element={<PrivateRoute element={<TexasDocument />} />} />
+              <Route path="/activewireless" element={<PrivateRoute element={<Activewireles />} />} />
+              <Route path="/technoca" element={<PrivateRoute element={<Techno_CA_Letterhead />} />} />
+              <Route path="*" element={<Navigate to="/home" />} />
+            </Routes>
+          </main>
+        </div>
+      ) : (
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/reset-password/:token" element={<UpdatePassword />} />
+          <Route path="/forgot-password" element={<RequestReset />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      )}
     </>
   );
 };
