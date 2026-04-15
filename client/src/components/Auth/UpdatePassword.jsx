@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaLock } from 'react-icons/fa';
 import { motion as Motion } from 'framer-motion';
 import axios from 'axios';
 
 const UpdatePassword = () => {
   const { token } = useParams();
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,9 +42,7 @@ const UpdatePassword = () => {
         setConfirmPassword('');
       }
     } catch (err) {
-      setError(
-        err.response?.data || err.message || 'Password reset failed'
-      );
+      setError(err.response?.data || err.message || 'Password reset failed');
     } finally {
       setIsSubmitting(false);
     }

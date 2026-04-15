@@ -1,50 +1,48 @@
-import { motion as Motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { FaArrowRight } from 'react-icons/fa';
-import './Styles/Home.css';
+import { motion as Motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
+import "./Styles/Home.css";
 
 const SERVICES = [
   {
-    title: 'Texas Mobile PCS',
-    description: 'Access document signing services for Texas Mobile PCS',
-    logo: '/texas-logo.jpg',
-    category: 'Mobile PCS',
-    path: '/texasdocu',
+    title: "Texas Mobile PCS",
+    description: "Access document signing services for Texas Mobile PCS",
+    logo: "/texas-logo.jpg",
+    category: "Mobile PCS",
+    path: "/texasdocu",
   },
   {
-    title: 'Techno Communications',
-    description: 'Access document signing services for Techno Communications',
-    logo: '/logoT.webp',
-    category: 'Communications',
-    path: '/technodocu',
+    title: "Techno Communications",
+    description: "Access document signing services for Techno Communications",
+    logo: "/logoT.webp",
+    category: "Communications",
+    path: "/technodocu",
   },
   {
-    title: 'Active Wireless',
-    description: 'Access document signing services for Active Wireless',
-    logo: '/A.webp',
-    category: 'Wireless',
-    path: '/activewireless',
+    title: "Active Wireless",
+    description: "Access document signing services for Active Wireless",
+    logo: "/A.webp",
+    category: "Wireless",
+    path: "/activewireless",
   },
   {
-    title: 'Techno CA',
-    description: 'Access document signing services for Techno CA',
-    logo: '/logoT.webp',
-    category: 'CA',
-    path: '/technoca',
+    title: "Techno CA",
+    description: "Access document signing services for Techno CA",
+    logo: "/logoT.webp",
+    category: "CA",
+    path: "/technoca",
   },
 ];
-
-
 
 const ServiceCard = ({ title, description, logo, category, path }) => {
   const navigate = useNavigate();
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
+    hidden: { opacity: 0, y: 36 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: 'spring', stiffness: 100, damping: 15 },
+      transition: { type: "spring", stiffness: 110, damping: 18 },
     },
   };
 
@@ -52,21 +50,15 @@ const ServiceCard = ({ title, description, logo, category, path }) => {
     <Motion.div
       className="home-service-card h-100"
       variants={cardVariants}
-      whileHover={{ y: -10, transition: { duration: 0.25 } }}
+      whileHover={{ y: -6, transition: { duration: 0.25 } }}
     >
       <div className="home-card-accent" />
       <div className="home-card-body">
         <div className="d-flex align-items-start justify-content-between gap-3">
           <div className="home-logo-shell">
-            <img
-              src={logo}
-              alt={`${title} Logo`}
-              className="home-service-logo"
-            />
+            <img src={logo} alt={`${title} Logo`} className="home-service-logo" />
           </div>
-          <span className="home-card-chip">
-            {category}
-          </span>
+          <span className="home-card-chip">{category}</span>
         </div>
 
         <h3 className="home-card-title">{title}</h3>
@@ -74,8 +66,8 @@ const ServiceCard = ({ title, description, logo, category, path }) => {
 
         <Motion.button
           className="home-card-button"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => navigate(path)}
         >
           Create Document <FaArrowRight />
@@ -92,8 +84,8 @@ function Home() {
   };
 
   const headingVariants = {
-    hidden: { opacity: 0, y: -30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    hidden: { opacity: 0, y: -24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
   };
 
   return (
@@ -110,8 +102,6 @@ function Home() {
           A focused signing hub for quickly preparing the right document for each
           company, location, and workflow.
         </p>
-
-       
       </Motion.div>
 
       <div className="home-services-grid">

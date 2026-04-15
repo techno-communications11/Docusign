@@ -1,8 +1,9 @@
-import  { useState } from "react";
-import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
+import { useState } from "react";
+import { FaEnvelope, FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { useMyContext } from "./useMyContext";
 import { motion as Motion } from "framer-motion";
+import { useMyContext } from "./useMyContext";
+
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -12,7 +13,8 @@ const Login = () => {
   const { updateAuth } = useMyContext();
 
   const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -20,20 +22,22 @@ const Login = () => {
     setError("");
     setIsSubmitting(true);
 
-    const payload = {
-      email: credentials.email.trim(),
-      password: credentials.password,
-    };
-
     try {
-      const loginResponse = await fetch(`/api/login`, {
+      const loginResponse = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          email: credentials.email.trim(),
+          password: credentials.password,
+        }),
       });
 
-      const loginData = await loginResponse.json();
+      const contentType = loginResponse.headers.get("content-type") || "";
+      const loginData = contentType.includes("application/json")
+        ? await loginResponse.json()
+        : { error: await loginResponse.text() };
+
       if (!loginResponse.ok) {
         throw new Error(loginData.error || "Login failed");
       }
@@ -59,7 +63,6 @@ const Login = () => {
         overflow: "hidden",
       }}
     >
-      {/* Decorative Shapes */}
       <div
         className="position-absolute"
         style={{
@@ -85,7 +88,6 @@ const Login = () => {
         }}
       />
 
-      {/* Centered Heading */}
       <Motion.h1
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -103,7 +105,6 @@ const Login = () => {
       </Motion.h1>
 
       <div className="row w-100 m-0">
-        {/* Left side with logo */}
         <Motion.div
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -114,11 +115,11 @@ const Login = () => {
             transition={{ type: "spring", stiffness: 300 }}
             src="logoT.webp"
             alt="Logo"
-            className="img-fluid w-75"
+            className="img-fluid"
+            style={{ maxWidth: "70%" }}
           />
         </Motion.div>
 
-        {/* Right side with login form */}
         <Motion.div
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -133,26 +134,20 @@ const Login = () => {
               border: "1px solid rgba(225, 1, 116, 0.1)",
             }}
           >
-            <div className="card-body  p-5">
+            <div className="card-body p-5">
               {error && (
                 <Motion.div
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   className="alert alert-danger rounded-3"
-                  style={{
-                    borderColor: "#E10174",
-                  }}
+                  style={{ borderColor: "#E10174" }}
                 >
                   {error}
                 </Motion.div>
               )}
+
               <form onSubmit={handleSubmit}>
-                <h4
-                  className="mb-4 text-center fw-bold"
-                  style={{
-                    color: "#E10174",
-                  }}
-                >
+                <h4 className="mb-4 text-center fw-bold" style={{ color: "#E10174" }}>
                   Login to Your Account
                 </h4>
                 <div className="mb-3 position-relative">
@@ -199,15 +194,13 @@ const Login = () => {
                   <Motion.span
                     whileHover={{ scale: 1.2 }}
                     className="position-absolute end-0 me-3 top-50 translate-middle-y"
-                    style={{
-                      cursor: "pointer",
-                      color: "#E10174",
-                    }}
-                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ cursor: "pointer", color: "#E10174" }}
+                    onClick={() => setShowPassword((prev) => !prev)}
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </Motion.span>
                 </div>
+
                 <Link to="/forgot-password">Forgot password?</Link>
                 <Motion.button
                   whileHover={{ scale: 1.05 }}
@@ -219,8 +212,9 @@ const Login = () => {
                     backgroundColor: "#E10174",
                     borderColor: "#E10174",
                     padding: "12px",
+                    fontWeight: "bold",
                     boxShadow: "0 10px 20px rgba(225, 1, 116, 0.3)",
-                    transition: "all 0.3s ease",
+                    transition: "0.3s",
                   }}
                 >
                   {isSubmitting ? "Signing in..." : "Login"}

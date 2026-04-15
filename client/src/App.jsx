@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Login } from "./components/Auth/Login.jsx";
 import { Register } from "./components/Auth/Register.jsx";
 import UpdatePassword from "./components/Auth/UpdatePassword.jsx";
@@ -20,36 +20,35 @@ const AppContent = () => {
     return <div>Loading...</div>;
   }
 
-  
+  if (!authState.isAuthenticated || location.pathname === "/") {
+    return (
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/forgot-password" element={<RequestReset />} />
+        <Route path="/reset-password/:token" element={<UpdatePassword />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
+  }
 
   return (
-    <>
-      {authState.isAuthenticated && location.pathname !== "/" ? (
-        <div className="authenticated-layout">
-          <CustomNavbar />
-          <main className="authenticated-content">
-            <Routes>
-              {authState.role === "Admin" && (
-                <Route path="/register" element={<PrivateRoute element={<Register />} />} />
-              )}
-              <Route path="/home" element={<PrivateRoute element={<Home />} />} />
-              <Route path="/technodocu" element={<PrivateRoute element={<TechnoDocument />} />} />
-              <Route path="/texasdocu" element={<PrivateRoute element={<TexasDocument />} />} />
-              <Route path="/activewireless" element={<PrivateRoute element={<Activewireles />} />} />
-              <Route path="/technoca" element={<PrivateRoute element={<Techno_CA_Letterhead />} />} />
-              <Route path="*" element={<Navigate to="/home" />} />
-            </Routes>
-          </main>
-        </div>
-      ) : (
+    <div className="authenticated-layout">
+      <CustomNavbar />
+      <main className="authenticated-content">
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/reset-password/:token" element={<UpdatePassword />} />
-          <Route path="/forgot-password" element={<RequestReset />} />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/home" element={<PrivateRoute element={<Home />} />} />
+          <Route path="/technodocu" element={<PrivateRoute element={<TechnoDocument />} />} />
+          <Route path="/texasdocu" element={<PrivateRoute element={<TexasDocument />} />} />
+          <Route path="/activewireless" element={<PrivateRoute element={<Activewireles />} />} />
+          <Route path="/technoca" element={<PrivateRoute element={<Techno_CA_Letterhead />} />} />
+          <Route
+            path="/register"
+            element={<PrivateRoute allowedRoles={["Admin"]} element={<Register />} />}
+          />
+          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
-      )}
-    </>
+      </main>
+    </div>
   );
 };
 

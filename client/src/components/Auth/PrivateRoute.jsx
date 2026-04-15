@@ -1,12 +1,19 @@
-
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useMyContext } from "./useMyContext";
 
-const PrivateRoute = ({ element }) => {
+const PrivateRoute = ({ element, allowedRoles }) => {
+  const location = useLocation();
   const { authState } = useMyContext();
 
-  if (authState.loading) return null; // Avoid flicker
-  return authState.isAuthenticated ? element : <Navigate to="/" />;
+  if (!authState.isAuthenticated) {
+    return <Navigate to="/" replace state={{ from: location }} />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(authState.role)) {
+    return <Navigate to="/home" replace />;
+  }
+
+  return element;
 };
 
 export default PrivateRoute;

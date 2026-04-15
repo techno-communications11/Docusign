@@ -1,5 +1,5 @@
-import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import { FaBars, FaFileSignature, FaHome, FaTimes, FaUserPlus } from "react-icons/fa";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 import "../Styles/CustomNavbar.css";
@@ -9,21 +9,18 @@ const CustomNavbar = () => {
   const { authState, logout } = useMyContext();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleNavLinkClick = () => {
-    setIsOpen(false);
-  };
-
-  // Show nothing while loading or if not authenticated
   if (authState.loading || !authState.isAuthenticated) {
     return null;
   }
 
-  const homeRoute =
-    {
-      Admin: "/home",
-      User: "/home",
-     
-    }[authState.role] || "/";
+  const handleNavLinkClick = () => {
+    setIsOpen(false);
+  };
+
+  const homeRoute = {
+    Admin: "/home",
+    User: "/home",
+  }[authState.role] || "/home";
 
   const navItems = [
     { label: "Dashboard", path: homeRoute, icon: <FaHome /> },
