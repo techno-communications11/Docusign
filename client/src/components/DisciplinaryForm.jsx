@@ -82,6 +82,8 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
 
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Failed to get canvas context');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       const scale = dpi / 96;
       ctx.scale(scale, scale);
 
@@ -284,29 +286,76 @@ const DisciplinaryForm = ({ letterheadImgSrc, companyName }) => {
       ctx.fillText('DATE:', tableX + signatureColWidth / 10, contentY + 15);
       ctx.fillText('DATE:', tableX + signatureColWidth + signatureColWidth / 10, contentY + 15);
 
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        alert('Please allow pop-ups for this site to enable printing.');
-        return;
+      const imgData = canvas.toDataURL('image/png');
+      const printFrame = document.createElement('iframe');
+      printFrame.style.position = 'fixed';
+      printFrame.style.right = '0';
+      printFrame.style.bottom = '0';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = '0';
+      printFrame.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(printFrame);
+
+      const frameWindow = printFrame.contentWindow;
+      if (!frameWindow) {
+        document.body.removeChild(printFrame);
+        throw new Error('Print frame is not available');
       }
 
-      const imgData = canvas.toDataURL('image/png');
-      printWindow.document.write(`
+      const cleanupPrintFrame = () => {
+        window.setTimeout(() => {
+          if (document.body.contains(printFrame)) {
+            document.body.removeChild(printFrame);
+          }
+        }, 0);
+      };
+
+      frameWindow.document.open();
+      frameWindow.document.write(`
         <!DOCTYPE html>
         <html>
           <head>
             <title>Print Document</title>
             <style>
-              body { margin: 0; }
-              img { width: 210mm; height: 297mm; }
+              @page { margin: 0; size: A4; }
+              html, body { margin: 0; padding: 0; }
+              body { display: flex; justify-content: center; align-items: flex-start; }
+              img { width: 210mm; height: 297mm; display: block; }
             </style>
           </head>
           <body>
-            <img src="${imgData}" onload="window.print(); window.close();" />
+            <img src="${imgData}" alt="Disciplinary document preview" />
           </body>
         </html>
       `);
-      printWindow.document.close();
+      frameWindow.document.close();
+
+      const image = frameWindow.document.querySelector('img');
+      if (!image) {
+        cleanupPrintFrame();
+        throw new Error('Print image could not be created');
+      }
+
+      image.onload = () => {
+        frameWindow.focus();
+
+        const finalizePrint = () => {
+          frameWindow.removeEventListener('afterprint', finalizePrint);
+          cleanupPrintFrame();
+        };
+
+        frameWindow.addEventListener('afterprint', finalizePrint, { once: true });
+        frameWindow.print();
+
+        // Some browsers do not reliably fire afterprint for iframe windows.
+        window.setTimeout(finalizePrint, 1000);
+      };
+
+      image.onerror = () => {
+        cleanupPrintFrame();
+        alert('An error occurred while preparing the document for printing.');
+      };
     } catch (error) {
       console.error('Error during print process:', error);
       alert('An error occurred while preparing the document for printing.');

@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import db from '../dbConnection/db.js';
+import { ensureResetColumns } from '../utils/ensureResetColumns.js';
 import { sendResetEmail } from '../utils/sendResetEmail.js';
 
 const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
@@ -13,6 +14,8 @@ const requestReset = async (req, res) => {
     }
 
     try {
+        await ensureResetColumns();
+
         const [user] = await db.execute(
             'SELECT id FROM users WHERE email = ?',
             [email]
@@ -31,12 +34,24 @@ const requestReset = async (req, res) => {
             [hashedToken, expiry, email]
         );
 
-        await sendResetEmail(email, token);
+        try {
+            await sendResetEmail(email, token);
+        } catch (emailError) {
+            await db.execute(
+                'UPDATE users SET resetToken=NULL, resetTokenExpiry=NULL WHERE email=?',
+                [email]
+            );
+
+            console.error('Failed to send reset email:', emailError);
+            return res.status(503).json({
+                message: 'Password reset email service is unavailable. Please try again later.'
+            });
+        }
 
         res.send(resetResponse);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 };
 

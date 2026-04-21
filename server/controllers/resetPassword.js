@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import db from '../dbConnection/db.js';
+import { ensureResetColumns } from '../utils/ensureResetColumns.js';
 
 const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
@@ -16,6 +17,8 @@ const resetPassword = async (req, res) => {
     }
 
     try {
+        await ensureResetColumns();
+
         const hashedToken = hashResetToken(token);
         const [user] = await db.execute(
             'SELECT id FROM users WHERE resetToken=? AND resetTokenExpiry > ?',
