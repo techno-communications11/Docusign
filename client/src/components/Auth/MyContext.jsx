@@ -3,6 +3,30 @@ import { AuthContext } from "./AuthContext";
 
 const AUTH_STORAGE_KEY = "auth_state";
 
+const getAvailableStorage = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const storage = window.localStorage;
+    const testKey = "__auth_storage_test__";
+    storage.setItem(testKey, "1");
+    storage.removeItem(testKey);
+    return storage;
+  } catch {
+    try {
+      const storage = window.sessionStorage;
+      const testKey = "__auth_storage_test__";
+      storage.setItem(testKey, "1");
+      storage.removeItem(testKey);
+      return storage;
+    } catch {
+      return null;
+    }
+  }
+};
+
 const defaultAuthState = {
   isAuthenticated: false,
   role: null,
@@ -11,12 +35,14 @@ const defaultAuthState = {
 };
 
 const loadStoredAuthState = () => {
-  if (typeof window === "undefined") {
+  const storage = getAvailableStorage();
+
+  if (!storage) {
     return defaultAuthState;
   }
 
   try {
-    const storedValue = window.sessionStorage.getItem(AUTH_STORAGE_KEY);
+    const storedValue = storage.getItem(AUTH_STORAGE_KEY);
 
     if (!storedValue) {
       return defaultAuthState;
@@ -41,16 +67,18 @@ export function MyProvider({ children }) {
   const [authState, setAuthState] = useState(loadStoredAuthState);
 
   const persistAuthState = (nextAuthState) => {
-    if (typeof window === "undefined") {
+    const storage = getAvailableStorage();
+
+    if (!storage) {
       return;
     }
 
     if (!nextAuthState.isAuthenticated) {
-      window.sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      storage.removeItem(AUTH_STORAGE_KEY);
       return;
     }
 
-    window.sessionStorage.setItem(
+    storage.setItem(
       AUTH_STORAGE_KEY,
       JSON.stringify({
         isAuthenticated: true,
