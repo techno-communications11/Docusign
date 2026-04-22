@@ -1,52 +1,76 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AuthContext } from "./AuthContext";
+
+const AUTH_STORAGE_KEY = "auth_state";
+
+const defaultAuthState = {
+  isAuthenticated: false,
+  role: null,
+  userId: null,
+  loading: false,
+};
+
+const loadStoredAuthState = () => {
+  if (typeof window === "undefined") {
+    return defaultAuthState;
+  }
+
+  try {
+    const storedValue = window.sessionStorage.getItem(AUTH_STORAGE_KEY);
+
+    if (!storedValue) {
+      return defaultAuthState;
+    }
+
+    const parsedValue = JSON.parse(storedValue);
+
+    return {
+      isAuthenticated: Boolean(parsedValue.isAuthenticated),
+      role: parsedValue.role ?? null,
+      userId: parsedValue.userId ?? null,
+      loading: false,
+    };
+  } catch (error) {
+    console.error("Failed to restore auth state:", error);
+    return defaultAuthState;
+  }
+};
 
 export function MyProvider({ children }) {
   const [users, setUsers] = useState([]);
-  const [authState, setAuthState] = useState({
-    isAuthenticated: false,
-    role: null,
-    userId: null,
-    loading: true,
-  });
+  const [authState, setAuthState] = useState(loadStoredAuthState);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/users/me", {
-          method: "GET",
-          credentials: "include",
-        });
+  const persistAuthState = (nextAuthState) => {
+    if (typeof window === "undefined") {
+      return;
+    }
 
-        const contentType = response.headers.get("content-type") || "";
+    if (!nextAuthState.isAuthenticated) {
+      window.sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      return;
+    }
 
-        if (!response.ok || !contentType.includes("application/json")) {
-          setAuthState({ isAuthenticated: false, role: null, userId: null, loading: false });
-          return;
-        }
+    window.sessionStorage.setItem(
+      AUTH_STORAGE_KEY,
+      JSON.stringify({
+        isAuthenticated: true,
+        role: nextAuthState.role,
+        userId: nextAuthState.userId,
+      })
+    );
+  };
 
-        const data = await response.json();
-        setAuthState({
-          isAuthenticated: true,
-          role: data.role,
-          userId: data.id,
-          loading: false,
-        });
-      } catch (error) {
-        console.error("Error checking auth:", error);
-        setAuthState({ isAuthenticated: false, role: null, userId: null, loading: false });
-      }
-    };
-
-    checkAuth();
-  }, []);
+  const applyAuthState = (nextAuthState) => {
+    setAuthState(nextAuthState);
+    persistAuthState(nextAuthState);
+  };
 
   const addUser = (newUsers) => {
     setUsers(newUsers);
   };
 
   const updateAuth = (isAuthenticated, role, userId) => {
-    setAuthState({ isAuthenticated, role, userId, loading: false });
+    applyAuthState({ isAuthenticated, role, userId, loading: false });
   };
 
   const logout = async () => {

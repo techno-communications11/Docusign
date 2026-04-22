@@ -1,8 +1,18 @@
 import { sendEmail } from './resendClient.js';
 
+const isLocalClientUrl = (url) => {
+    try {
+        const parsedUrl = new URL(url);
+        return ['localhost', '127.0.0.1'].includes(parsedUrl.hostname);
+    } catch {
+        return false;
+    }
+};
+
 export const sendResetEmail = async (email, token) => {
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const resetLink = `${clientUrl.replace(/\/$/, '')}/reset-password/${token}`;
+    const shouldAllowLocalFallback = isLocalClientUrl(clientUrl);
 
     try {
         const result = await sendEmail({
@@ -19,8 +29,8 @@ export const sendResetEmail = async (email, token) => {
 
         return { ...result, resetLink };
     } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.warn('Reset email delivery skipped in non-production:', error.message);
+        if (shouldAllowLocalFallback) {
+            console.warn('Reset email delivery skipped for local environment:', error.message);
             console.warn(`Password reset link for ${email}: ${resetLink}`);
             return { skipped: true, resetLink };
         }
