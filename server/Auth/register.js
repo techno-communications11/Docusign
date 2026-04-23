@@ -9,9 +9,10 @@ const validateEmail = (email) => {
 const register = async (req, res) => {
   const email = req.body.email?.trim().toLowerCase();
   const { password } = req.body;
-  const roleName = req.body.role || req.body.department;
+  const roleName = req.body.role?.name || req.body.roleName || req.body.role || req.body.department;
+  const rolePortal = req.body.role?.portal || req.body.portal;
 
-  if (!email || !password || !roleName) {
+  if (!email || !password || !roleName || !rolePortal) {
     return res.status(400).json({ message: 'Please provide all required fields' });
   }
 
@@ -36,13 +37,13 @@ const register = async (req, res) => {
     }
 
     const [roleResult] = await connection.execute(
-      'SELECT id, name, portal FROM roles WHERE name = ? LIMIT 1',
-      [roleName]
+      'SELECT id, name, portal FROM roles WHERE name = ? AND portal = ? LIMIT 1',
+      [roleName, rolePortal]
     );
 
     if (roleResult.length === 0) {
       await connection.rollback();
-      return res.status(400).json({ message: 'Invalid user role' });
+      return res.status(400).json({ message: 'Invalid user role or portal' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

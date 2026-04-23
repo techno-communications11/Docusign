@@ -10,7 +10,7 @@ import resetPassword from '../controllers/resetPassword.js';
 const router = express.Router();
 
 router.post('/login', login);
-router.post('/register', authenticateToken, authorizeRoles(['writeup_admin']), register);
+router.post('/register', authenticateToken, authorizeRoles(['ADMIN']), register);
 router.post('/request-reset', requestReset);
 router.post('/reset-password', resetPassword);
 router.post('/logout', authenticateToken, logout);

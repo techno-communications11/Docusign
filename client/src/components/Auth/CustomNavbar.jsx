@@ -8,6 +8,12 @@ import { useMyContext } from "./useMyContext";
 const CustomNavbar = () => {
   const { authState, logout } = useMyContext();
   const [isOpen, setIsOpen] = useState(false);
+  const assignedRoles = authState.roles.length
+    ? authState.roles.map((role) => role.name ?? role)
+    : authState.role
+      ? [authState.role]
+      : [];
+  const isAdmin = assignedRoles.includes("ADMIN");
 
   if (authState.loading || !authState.isAuthenticated) {
     return null;
@@ -17,10 +23,7 @@ const CustomNavbar = () => {
     setIsOpen(false);
   };
 
-  const homeRoute = {
-    writeup_admin: "/home",
-    writeup_user: "/home",
-  }[authState.role] || "/home";
+  const homeRoute = "/home";
 
   const navItems = [
     { label: "Dashboard", path: homeRoute, icon: <FaHome /> },
@@ -71,7 +74,7 @@ const CustomNavbar = () => {
         </div>
 
         <div className="side-nav-role">
-          <span>{authState.role || "writeup_user"}</span>
+          <span>{authState.role || "USER"}</span>
           <small>Signed in workspace</small>
         </div>
 
@@ -90,7 +93,7 @@ const CustomNavbar = () => {
             </NavLink>
           ))}
 
-          {authState.role === "writeup_admin" && (
+          {isAdmin && (
             <NavLink
               to="/register"
               className={({ isActive }) =>

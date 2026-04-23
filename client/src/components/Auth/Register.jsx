@@ -1,13 +1,21 @@
 import { useState } from "react";
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUserShield } from "react-icons/fa";
 import "../Styles/Register.css";
+import { useMyContext } from "./useMyContext";
+
+const ROLE_OPTIONS = [
+  { value: "USER", label: "User" },
+  { value: "ADMIN", label: "Admin" },
+];
 
 const Register = () => {
+  const { authState } = useMyContext();
+  const currentPortal = authState.roles.find((role) => role?.portal)?.portal || "";
   const [userData, setUserData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
-    role: "",
+    roleName: "",
   });
 
   const [error, setError] = useState("");
@@ -26,7 +34,13 @@ const Register = () => {
     setError("");
     setSuccess("");
 
-    if (!userData.role) {
+    if (!currentPortal) {
+      setError("Unable to detect the current user's portal.");
+      setLoading(false);
+      return;
+    }
+
+    if (!userData.roleName) {
       setError("Please select a role");
       setLoading(false);
       return;
@@ -43,18 +57,31 @@ const Register = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          email: userData.email.trim().toLowerCase(),
+          password: userData.password,
+          role: {
+            portal: currentPortal,
+            name: userData.roleName,
+          },
+        }),
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await response.json()
+        : { message: "Registration failed" };
 
       if (response.status === 201) {
-        setSuccess("Registration successful! User added.");
+        const createdRole = ROLE_OPTIONS.find((option) => option.value === userData.roleName);
+        setSuccess(
+          `Registration successful! ${data.user?.email || userData.email.trim().toLowerCase()} was added as ${createdRole?.label || "a user"} in ${currentPortal}.`
+        );
         setUserData({
           email: "",
           password: "",
           confirmPassword: "",
-          role: "",
+          roleName: "",
         });
       } else {
         setError(data.message || "Registration failed");
@@ -113,16 +140,22 @@ const Register = () => {
                   <select
                     className="form-select register-input text-center"
                     id="role"
-                    name="role"
-                    value={userData.role}
+                    name="roleName"
+                    value={userData.roleName}
                     onChange={handleChange}
                     required
                   >
-                    <option value="" >Select role</option>
-                    <option value="writeup_user">User</option>
-                    <option value="writeup_admin">Admin</option>
+                    <option value="">Select role</option>
+                    {ROLE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label} ({option.value})
+                      </option>
+                    ))}
                   </select>
                 </div>
+                <small className="text-muted d-block mt-2 text-center">
+                  New users are created in the current portal: `{currentPortal || "Unavailable"}`.
+                </small>
               </div>
 
               <div className="col-md-6">
