@@ -43,7 +43,7 @@ const AppContent = () => {
           <Route path="/technoca" element={<PrivateRoute element={<Techno_CA_Letterhead />} />} />
           <Route
             path="/register"
-            element={<PrivateRoute allowedRoles={["Admin"]} element={<Register />} />}
+            element={<PrivateRoute allowedRoles={["writeup_admin"]} element={<Register />} />}
           />
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>

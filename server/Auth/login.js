@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import db from '../dbConnection/db.js';
+import { findUserWithRolesByEmail } from '../utils/authUser.js';
 
 async function login(req, res) {
   const email = req.body.email?.trim().toLowerCase();
@@ -16,19 +16,18 @@ async function login(req, res) {
   }
 
   try {
-    const [rows] = await db.execute(
-      'SELECT id, email, password, role, is_active FROM users WHERE email = ?',
-      [email]
-    );
+    const user = await findUserWithRolesByEmail(email);
 
-    if (rows.length === 0) {
+    if (!user) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    const user = rows[0];
-
     if (Number(user.is_active) !== 1) {
       return res.status(403).json({ error: 'Your account is inactive. Please contact support.' });
+    }
+
+    if (user.roles.length === 0) {
+      return res.status(403).json({ error: 'No role is assigned to this account.' });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -38,7 +37,7 @@ async function login(req, res) {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, roles: user.roles },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -56,6 +55,7 @@ async function login(req, res) {
         id: user.id,
         email: user.email,
         role: user.role,
+        roles: user.roles,
       },
     });
   } catch (error) {

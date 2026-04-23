@@ -9,10 +9,9 @@ const validateEmail = (email) => {
 const register = async (req, res) => {
   const email = req.body.email?.trim().toLowerCase();
   const { password } = req.body;
-  const role = req.body.role || req.body.department;
-  const allowedRoles = ['Admin', 'User'];
+  const roleName = req.body.role || req.body.department;
 
-  if (!email || !password || !role) {
+  if (!email || !password || !roleName) {
     return res.status(400).json({ message: 'Please provide all required fields' });
   }
 
@@ -24,30 +23,59 @@ const register = async (req, res) => {
     return res.status(400).json({ message: 'Password must be at least 8 characters long' });
   }
 
-  if (!allowedRoles.includes(role)) {
-    return res.status(400).json({ message: 'Invalid user role' });
-  }
-
+  let connection;
   try {
-    const [userCheckResult] = await db.execute('SELECT id FROM users WHERE email = ?', [email]);
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    const [userCheckResult] = await connection.execute('SELECT id FROM users WHERE email = ?', [email]);
 
     if (userCheckResult.length > 0) {
+      await connection.rollback();
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    const [roleResult] = await connection.execute(
+      'SELECT id, name, portal FROM roles WHERE name = ? LIMIT 1',
+      [roleName]
+    );
+
+    if (roleResult.length === 0) {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Invalid user role' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const insertQuery = 'INSERT INTO users (email, password, role, created_at) VALUES (?, ?, ?, now())';
-    await db.execute(insertQuery, [email, hashedPassword, role]);
- 
+    const insertUserQuery = 'INSERT INTO users (email, password, created_at) VALUES (?, ?, now())';
+    const [insertResult] = await connection.execute(insertUserQuery, [email, hashedPassword]);
+
+    await connection.execute(
+      'INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)',
+      [insertResult.insertId, roleResult[0].id]
+    );
+
+    await connection.commit();
+
     res.status(201).json({
       message: 'Registration successful! Please login with your credentials.',
+      user: {
+        id: insertResult.insertId,
+        email,
+        role: roleResult[0].name,
+        portal: roleResult[0].portal,
+      },
     });
   } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
     console.error('Error during registration:', error);
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({ message: 'User already exists' });
     }
     res.status(500).json({ message: 'Internal server error' });
+  } finally {
+    connection?.release();
   }
 };
 

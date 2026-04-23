@@ -30,6 +30,7 @@ const getAvailableStorage = () => {
 const defaultAuthState = {
   isAuthenticated: false,
   role: null,
+  roles: [],
   userId: null,
   loading: false,
 };
@@ -53,6 +54,7 @@ const loadStoredAuthState = () => {
     return {
       isAuthenticated: Boolean(parsedValue.isAuthenticated),
       role: parsedValue.role ?? null,
+      roles: Array.isArray(parsedValue.roles) ? parsedValue.roles : [],
       userId: parsedValue.userId ?? null,
       loading: false,
     };
@@ -83,6 +85,7 @@ export function MyProvider({ children }) {
       JSON.stringify({
         isAuthenticated: true,
         role: nextAuthState.role,
+        roles: nextAuthState.roles,
         userId: nextAuthState.userId,
       })
     );
@@ -97,8 +100,8 @@ export function MyProvider({ children }) {
     setUsers(newUsers);
   };
 
-  const updateAuth = (isAuthenticated, role, userId) => {
-    applyAuthState({ isAuthenticated, role, userId, loading: false });
+  const updateAuth = (isAuthenticated, role, userId, roles = []) => {
+    applyAuthState({ isAuthenticated, role, roles, userId, loading: false });
   };
 
   const logout = async () => {
@@ -110,7 +113,7 @@ export function MyProvider({ children }) {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      updateAuth(false, null, null);
+      updateAuth(false, null, null, []);
     }
   };
 

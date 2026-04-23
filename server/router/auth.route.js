@@ -3,13 +3,14 @@ import login from '../Auth/login.js';
 import logout from '../Auth/logout.js';
 import register from '../Auth/register.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
+import { authorizeRoles } from '../middleware/authorizeRoles.js';
 import requestReset from '../controllers/requestReset.js';
 import resetPassword from '../controllers/resetPassword.js';
 
 const router = express.Router();
 
 router.post('/login', login);
-router.post('/register', register);
+router.post('/register', authenticateToken, authorizeRoles(['writeup_admin']), register);
 router.post('/request-reset', requestReset);
 router.post('/reset-password', resetPassword);
 router.post('/logout', authenticateToken, logout);

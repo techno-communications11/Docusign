@@ -42,8 +42,8 @@ const Login = () => {
         throw new Error(loginData.error || "Login failed");
       }
 
-      const { role, id } = loginData.user;
-      updateAuth(true, role, id);
+      const { role, roles = [], id } = loginData.user;
+      updateAuth(true, role, id, roles);
       navigate("/home", { replace: true });
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
