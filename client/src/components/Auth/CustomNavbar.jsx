@@ -18,8 +18,8 @@ const CustomNavbar = () => {
   };
 
   const homeRoute = {
-    Admin: "/home",
-    User: "/home",
+    writeup_admin: "/home",
+    writeup_user: "/home",
   }[authState.role] || "/home";
 
   const navItems = [
@@ -71,7 +71,7 @@ const CustomNavbar = () => {
         </div>
 
         <div className="side-nav-role">
-          <span>{authState.role || "User"}</span>
+          <span>{authState.role || "writeup_user"}</span>
           <small>Signed in workspace</small>
         </div>
 
@@ -90,7 +90,7 @@ const CustomNavbar = () => {
             </NavLink>
           ))}
 
-          {authState.role === "Admin" && (
+          {authState.role === "writeup_admin" && (
             <NavLink
               to="/register"
               className={({ isActive }) =>

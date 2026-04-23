@@ -17,7 +17,7 @@ async function login(req, res) {
 
   try {
     const [rows] = await db.execute(
-      'SELECT id, email, password, role FROM users WHERE email = ?',
+      'SELECT id, email, password, role, is_active FROM users WHERE email = ?',
       [email]
     );
 
@@ -26,6 +26,11 @@ async function login(req, res) {
     }
 
     const user = rows[0];
+
+    if (Number(user.is_active) !== 1) {
+      return res.status(403).json({ error: 'Your account is inactive. Please contact support.' });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {

@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import db from '../dbConnection/db.js';
-import { ensureResetColumns } from '../utils/ensureResetColumns.js';
 
 const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
@@ -17,12 +16,10 @@ const resetPassword = async (req, res) => {
     }
 
     try {
-        await ensureResetColumns();
-
         const hashedToken = hashResetToken(token);
         const [user] = await db.execute(
-            'SELECT id FROM users WHERE resetToken=? AND resetTokenExpiry > ?',
-            [hashedToken, Date.now()]
+            'SELECT id FROM users WHERE reset_token=? AND reset_token_expiry > NOW() AND is_active = 1',
+            [hashedToken]
         );
 
         if (user.length === 0) {
@@ -33,7 +30,7 @@ const resetPassword = async (req, res) => {
 
         await db.execute(
             `UPDATE users 
-             SET password=?, resetToken=NULL, resetTokenExpiry=NULL 
+             SET password=?, reset_token=NULL, reset_token_expiry=NULL 
              WHERE id=?`,
             [hashedPassword, user[0].id]
         );

@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import db from '../dbConnection/db.js';
-import { ensureResetColumns } from '../utils/ensureResetColumns.js';
 import { sendResetEmail } from '../utils/sendResetEmail.js';
 
 const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
@@ -14,10 +13,8 @@ const requestReset = async (req, res) => {
     }
 
     try {
-        await ensureResetColumns();
-
         const [user] = await db.execute(
-            'SELECT id FROM users WHERE email = ?',
+            'SELECT id FROM users WHERE email = ? AND is_active = 1',
             [email]
         );
 
@@ -27,10 +24,10 @@ const requestReset = async (req, res) => {
 
         const token = crypto.randomBytes(32).toString('hex');
         const hashedToken = hashResetToken(token);
-        const expiry = Date.now() + 15 * 60 * 1000;
+        const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
         await db.execute(
-            'UPDATE users SET resetToken=?, resetTokenExpiry=? WHERE email=?',
+            'UPDATE users SET reset_token=?, reset_token_expiry=? WHERE email=?',
             [hashedToken, expiry, email]
         );
 
@@ -38,7 +35,7 @@ const requestReset = async (req, res) => {
             await sendResetEmail(email, token);
         } catch (emailError) {
             await db.execute(
-                'UPDATE users SET resetToken=NULL, resetTokenExpiry=NULL WHERE email=?',
+                'UPDATE users SET reset_token=NULL, reset_token_expiry=NULL WHERE email=?',
                 [email]
             );
 
